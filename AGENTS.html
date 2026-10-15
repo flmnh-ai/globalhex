@@ -112,19 +112,20 @@
 <li>Parent lookup is a local string operation on Z7/Z3 IDs (no DGGRID call).</li>
 <li>Plotting picks a display level from cell centers, aggregates locally, and asks DGGRID for boundaries only for the final display cells. <code>render = "auto"</code> rasterizes at <code>raster_threshold</code> (20,000) cells when terra is available.</li>
 <li>
+<code>st_as_sf()</code> and unprojected plots split antimeridian-crossing cells and close polar cells along the map edge; <code><a href="reference/cell_boundary.html">cell_boundary()</a></code> returns the raw, unsplit DGGRID rings.</li>
+<li>
 <code><a href="reference/raster_to_cell.html">raster_to_cell()</a></code> pads DGGRID’s nucleus-based cover by one neighbor ring, then drops cells not intersecting the raster footprint. Full-longitude rasters use whole-grid generation instead of a clipping polygon.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="open-work">Open work<a class="anchor" aria-label="anchor" href="#open-work"></a></h2>
 <ul><li>Replace subprocess-per-operation calls with a persistent process or a native dgaplib bridge.</li>
-<li>Add fixtures for polygon covers spanning the antimeridian and holes at polar latitudes.</li>
+<li>Add tests for <code><a href="reference/cell_cover.html">cell_cover()</a></code> with polygons spanning the antimeridian (checked by hand: ±180 and 0–360 coordinates give the same cells) and with holes at polar latitudes.</li>
 <li>Consider a bounded neighbor/center cache if benchmarks show repeated lookups dominate real workloads.</li>
 <li>Consider precomputed aggregation pyramids if interactive workloads outgrow the current LOD path.</li>
-<li>Set up a pkgdown site.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="docs">Docs<a class="anchor" aria-label="anchor" href="#docs"></a></h2>
-<p><code>README.md</code> is generated from <code>README.Rmd</code>: edit the .Rmd and run <code>devtools::build_readme()</code>. Longer explanations belong in <code>vignettes/</code>, not the README. Vignettes must run quickly and guard optional packages with <code>eval = requireNamespace(...)</code>.</p>
+<p><code>README.md</code> is generated from <code>README.Rmd</code>: edit the .Rmd and run <code>devtools::build_readme()</code>. The pkgdown site (<a href="https://flmnh-ai.github.io/globalhex/" class="uri">https://flmnh-ai.github.io/globalhex/</a>, config in <code>_pkgdown.yml</code>) rebuilds on every push to <code>main</code>. Longer explanations belong in <code>vignettes/</code>, not the README. Vignettes must run quickly and guard optional packages with <code>eval = requireNamespace(...)</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="licensing">Licensing<a class="anchor" aria-label="anchor" href="#licensing"></a></h2>
