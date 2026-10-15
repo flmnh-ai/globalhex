@@ -42,5 +42,5 @@ VignetteBuilder: knitr
 Config/testthat/edition: 3
 SystemRequirements: GNU make, C++17. DGGRID 9.03b source is bundled and
     compiled at install time; see inst/COPYRIGHTS.
-URL: https://github.com/flmnh-ai/globalhex
+URL: https://github.com/flmnh-ai/globalhex, https://flmnh-ai.github.io/globalhex/
 BugReports: https://github.com/flmnh-ai/globalhex/issues

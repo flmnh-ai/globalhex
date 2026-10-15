@@ -102,6 +102,8 @@ resolution, so plotting millions of cells stays fast.
 
 ## Learn more
 
+Full documentation lives at <https://flmnh-ai.github.io/globalhex/>.
+
 - `vignette("globalhex")`: grids, cells, resolutions, and saving cells
 - `vignette("plotting")`: mapping large datasets
 - `vignette("rasters-and-polygons")`: moving raster and vector data onto

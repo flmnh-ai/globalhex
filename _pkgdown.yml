@@ -1,0 +1,66 @@
+url: https://flmnh-ai.github.io/globalhex/
+
+template:
+  bootstrap: 5
+
+reference:
+- title: Locate
+  desc: Move between coordinates and cells.
+  contents:
+  - point_to_cell
+  - cell_center
+  - cell_boundary
+- title: Neighborhoods
+  desc: Find nearby cells and measure grid distance.
+  contents:
+  - cell_neighbors
+  - cell_disk
+  - cell_ring
+  - cell_distance
+- title: Hierarchy
+  desc: Move up and down resolutions.
+  contents:
+  - cell_parent
+  - cell_children
+  - cell_aggregate
+- title: Mapping
+  desc: Build lazy cell tables and draw them.
+  contents:
+  - hex_data
+  - plot.globalhex_data
+  - plot_resolution
+  - st_as_sf.globalhex_cell
+- title: Rasters and polygons
+  desc: Move raster and vector data onto cells.
+  contents:
+  - raster_to_cell
+  - cell_extract
+  - cell_sample
+  - cell_cover
+- title: Grids and cells
+  desc: Create grids and inspect cell vectors.
+  contents:
+  - hex_grid
+  - as_globalhex_cell
+  - cell_resolution
+  - cell_grid
+  - cell_is_valid
+  - globalhex_info
+  - globalhex-package
+- title: Legacy
+  desc: Interoperate with dggridR and sequence numbers.
+  contents:
+  - legacy_grid
+  - as_dggridR_dggs
+  - as_seqnum
+
+articles:
+- title: Get started
+  navbar: ~
+  contents:
+  - globalhex
+- title: Guides
+  navbar: Guides
+  contents:
+  - plotting
+  - rasters-and-polygons
