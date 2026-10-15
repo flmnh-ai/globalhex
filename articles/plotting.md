@@ -210,3 +210,21 @@ library(ggplot2)
 ggplot(polygons) +
   geom_sf(aes(fill = observations), color = NA)
 ```
+
+[`sf::st_as_sf()`](https://r-spatial.github.io/sf/reference/st_as_sf.html)
+prepares the polygons for flat longitude/latitude maps. Cells that cross
+the 180° meridian are split into two parts, one at each edge of the map,
+and cells containing a pole are closed along the top or bottom edge.
+Areas from
+[`sf::st_area()`](https://r-spatial.github.io/sf/reference/geos_measures.html)
+are unchanged. For a Pacific-centred map, shift the longitudes to 0–360°
+with
+[`sf::st_shift_longitude()`](https://r-spatial.github.io/sf/reference/st_shift_longitude.html):
+
+``` r
+
+pacific <- sf::st_shift_longitude(polygons)
+```
+
+Use `sf::st_as_sf(cells, wrap = FALSE)` to get the unsplit spherical
+polygons, for example to project them to a polar map yourself.

@@ -42,7 +42,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="globalhex-0009000">globalhex 0.0.0.9000<a class="anchor" aria-label="anchor" href="#globalhex-0009000"></a></h2>
-<ul><li>Bundled DGGRID 9.03b source, compiled without GDAL at install time, so no separate DGGRID installation is needed. The package is now AGPL-3.0-or-later.</li>
+<ul><li>
+<code>st_as_sf()</code> now returns polygons that draw correctly on flat longitude/latitude maps: cells crossing the antimeridian are split into <code>MULTIPOLYGON</code>s, cells containing a pole are closed along latitude ±90, and long edges follow their great circles. Spherical areas are unchanged. Use <code>wrap = FALSE</code> for the raw spherical polygons. Unprojected <code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code> displays use the same geometry, so polar cells no longer smear across the map.</li>
+<li>Bundled DGGRID 9.03b source, compiled without GDAL at install time, so no separate DGGRID installation is needed. The package is now AGPL-3.0-or-later.</li>
 <li>
 <code><a href="../reference/cell_cover.html">cell_cover()</a></code> clips with DGGRID’s AIGEN format and applies polygon holes in R, keeping cells on islands inside holes.</li>
 <li>Fixed automatic plot resolution failing (“No source cells are visible”) for wide regional datasets, such as North Atlantic storm tracks.</li>
