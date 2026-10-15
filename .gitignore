@@ -7,3 +7,7 @@
 globalhex_*.tar.gz
 Rplots.pdf
 work/
+/doc/
+/Meta/
+vignettes/*.html
+vignettes/*_files/

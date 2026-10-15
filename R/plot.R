@@ -609,9 +609,13 @@ plot.globalhex_data <- function(
   lat_ok <- lat >= max(-90, extent[["ymin"]] - padding) &
     lat <= min(90, extent[["ymax"]] + padding)
   lon_padding <- min(180, padding / max(cos(mean(extent[3:4]) * pi / 180), 0.1))
+  span <- extent[["xmax"]] - extent[["xmin"]]
+  if (span < 0) span <- span + 360
   xmin <- .wrap_longitude(extent[["xmin"]] - lon_padding)
   xmax <- .wrap_longitude(extent[["xmax"]] + lon_padding)
-  lon_ok <- if (lon_padding >= 180 || abs(diff(extent[1:2])) >= 359.999) {
+  # A padded interval of 360 degrees or more covers every longitude; wrapping
+  # its ends would otherwise produce a spurious narrow interval.
+  lon_ok <- if (span + 2 * lon_padding >= 359.999) {
     rep(TRUE, length(lon))
   } else if (xmin <= xmax) {
     lon >= xmin & lon <= xmax

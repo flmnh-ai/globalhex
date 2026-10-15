@@ -1,3 +1,14 @@
+# End-to-end demo: global raster -> IGEO7 cells -> map.
+#
+# Uses the NASA SEDAC "Global Fertilizer and Manure, Version 1: Phosphorus
+# Fertilizer Application" GeoTIFF (free Earthdata login required). Set
+# GLOBALHEX_FERTILIZER_RASTER to its path, or place it at
+# ~/Downloads/PFertilizer_global_geotif/pfertilizer_global.tif.
+#
+# Writes cell data (.rds) and a PNG to GLOBALHEX_DEMO_DIR (default "work/").
+# GLOBALHEX_DEMO_RESOLUTION defaults to 4; resolution 5 roughly matches the
+# source raster's 0.5-degree pixel count.
+
 if (file.exists("DESCRIPTION")) {
   devtools::load_all(".", quiet = TRUE)
 } else {

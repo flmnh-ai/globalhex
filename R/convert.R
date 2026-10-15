@@ -48,7 +48,7 @@
   }
 
   nm <- tolower(colnames(points) %||% rep.int("", ncol(points)))
-  lon_pos <- match(TRUE, nm %in% c("lon", "lng", "longitude", "x"), nomatch = 0L)
+  lon_pos <- match(TRUE, nm %in% c("lon", "long", "lng", "longitude", "x"), nomatch = 0L)
   lat_pos <- match(TRUE, nm %in% c("lat", "latitude", "y"), nomatch = 0L)
   if (!lon_pos || !lat_pos) {
     lon_pos <- 1L

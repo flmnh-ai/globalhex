@@ -537,7 +537,10 @@ raster_to_cell <- function(
 #' Split a geographic interval into bounded clipping pieces
 #' @noRd
 .bounded_breaks <- function(lower, upper, size = 60) {
-  internal <- seq(ceiling(lower / size) * size, floor(upper / size) * size, by = size)
+  first <- ceiling(lower / size) * size
+  last <- floor(upper / size) * size
+  # Intervals narrower than one chunk contain no internal break.
+  internal <- if (first <= last) seq(first, last, by = size) else numeric()
   sort(unique(c(lower, internal[internal > lower & internal < upper], upper)))
 }
 

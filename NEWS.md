@@ -4,7 +4,14 @@
   separate DGGRID installation is needed. The package is now AGPL-3.0-or-later.
 - `cell_cover()` clips with DGGRID's AIGEN format and applies polygon holes in
   R, keeping cells on islands inside holes.
-- Added a personal-use IGEO7/Z7-first MVP over DGGRID 9.x.
+- Fixed automatic plot resolution failing ("No source cells are visible") for
+  wide regional datasets, such as North Atlantic storm tracks.
+- Fixed `raster_to_cell()` failing for rasters narrower than 60 degrees that
+  do not cross a multiple of 60 degrees longitude.
+- `point_to_cell()` recognizes a `long` column for longitude.
+- New README with rendered examples, and three vignettes: getting started,
+  plotting, and rasters and polygons.
+- Added an IGEO7/Z7-first API over DGGRID 9.x.
 - Added ISEA3H/Z3 selection and a partial dggridR compatibility fallback.
 - Added conversion, boundary, neighbor, traversal, hierarchy, sf, and polygon
   fill helpers with H3-like snake-case names.

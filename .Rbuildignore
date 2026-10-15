@@ -7,3 +7,6 @@
 ^AGENTS\.md$
 ^src/.*\.o$
 ^src/dggrid/dggrid(\.exe)?$
+^README\.Rmd$
+^doc$
+^Meta$

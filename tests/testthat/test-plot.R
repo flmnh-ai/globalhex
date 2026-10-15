@@ -223,3 +223,20 @@ test_that("regional projected and dateline plots render reduced geometry", {
   expect_gt(file.info(seam_file)$size, 0)
   expect_true(all(sf::st_is_valid(attr(seam_display, "geometry"))))
 })
+
+test_that("coarse levels stay visible when padding exceeds the globe", {
+  extent <- c(xmin = -138, xmax = 16, ymin = 5, ymax = 72)
+  expect_true(.centers_visible(-78.8, 31.7, extent, padding = 88))
+  expect_true(.centers_visible(100, 31.7, extent, padding = 88))
+  expect_false(.centers_visible(100, 31.7, extent, padding = 1))
+})
+
+test_that("automatic plot resolution works for a wide regional dataset", {
+  grid <- modern_grid()
+  points <- data.frame(
+    long = c(-136, -100, -80, -60, -40, -20, 10),
+    lat = c(10, 20, 30, 40, 50, 60, 70)
+  )
+  x <- hex_data(point_to_cell(points, 6, grid), value = seq_len(7))
+  expect_gte(plot_resolution(x), 1L)
+})

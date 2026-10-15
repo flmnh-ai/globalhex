@@ -7,8 +7,13 @@
 globalhex_info()
 }
 \value{
-A named list describing R, optional packages, and modern DGGRID.
+A named list describing R, optional packages, and the DGGRID
+executable in use.
 }
 \description{
-Report the local globalhex environment
+globalhex runs a DGGRID executable compiled when the package is installed.
+To use a different DGGRID build (version 9.0 or later), set
+\code{options(globalhex.dggrid = "/path/to/dggrid")} or the \code{DGGRID_BIN} (or
+\code{DGGRID}) environment variable. These take precedence over a \code{dggrid} on
+the \code{PATH}, which in turn takes precedence over the bundled copy.
 }

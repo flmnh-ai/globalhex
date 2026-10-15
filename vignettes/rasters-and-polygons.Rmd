@@ -1,0 +1,142 @@
+---
+title: "Rasters and polygons"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Rasters and polygons}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 4.5,
+  dpi = 96
+)
+run <- all(vapply(c("sf", "terra", "exactextractr"), requireNamespace, logical(1), quietly = TRUE))
+knitr::opts_chunk$set(eval = run)
+```
+
+Much spatial data arrives as rasters (gridded images such as elevation or
+climate) or as polygons (such as countries or study areas). This vignette shows
+how to move both onto globalhex cells. It uses the
+[terra](https://rspatial.github.io/terra/),
+[exactextractr](https://isciences.gitlab.io/exactextractr/), and
+[sf](https://r-spatial.github.io/sf/) packages.
+
+```{r setup, message = FALSE, warning = FALSE}
+library(globalhex)
+library(terra)
+```
+
+## From raster to cells
+
+terra includes a small elevation raster of Luxembourg:
+
+```{r}
+elevation <- rast(system.file("ex/elev.tif", package = "terra"))
+elevation
+```
+
+`raster_to_cell()` finds every cell that overlaps the raster and summarizes the
+pixels inside each one:
+
+```{r}
+elevation_hex <- raster_to_cell(elevation, resolution = 8, progress = FALSE)
+elevation_hex
+
+plot(elevation_hex)
+```
+
+The result is a `hex_data` object, so everything in `vignette("plotting")`
+applies. Cells where the raster has no data are dropped; use `drop_na = FALSE`
+to keep them.
+
+### How pixels are summarized
+
+By default, each cell gets the **area-weighted mean** of the pixels it overlaps.
+A pixel that is only partly inside a cell counts only for the part inside. Area
+weighting matters for longitude/latitude rasters, whose pixels get smaller
+toward the poles. For categorical rasters, such as land cover, the default is
+the most common class, weighted the same way.
+
+Choose other summaries with `fun`, using any
+[exactextractr summary](https://isciences.gitlab.io/exactextractr/reference/exact_extract.html):
+
+```{r}
+elevation_range <- raster_to_cell(
+  elevation,
+  resolution = 7,
+  fun = c("min", "max"),
+  progress = FALSE
+)
+elevation_range
+```
+
+Set `weights = NULL` to weight pixels only by how much of each one falls inside
+the cell, without accounting for pixel area.
+
+## Into cells you already have
+
+If you already have cells, perhaps from binning points, bring raster values
+into them with one of two functions:
+
+- `cell_extract()` uses the same exact, area-weighted summaries as
+  `raster_to_cell()`.
+- `cell_sample()` reads the single pixel under each cell's center. It is much
+  faster but ignores the rest of the cell, so it suits rasters whose pixels are
+  smaller than the cells.
+
+```{r}
+sites <- point_to_cell(
+  data.frame(lon = c(6.13, 5.97, 6.36), lat = c(49.61, 49.90, 49.75)),
+  resolution = 7
+)
+
+cell_extract(sites, elevation)
+cell_sample(sites, elevation)
+```
+
+## Rasters that cover the globe
+
+Global rasters work the same way. Rasters whose longitudes run from 0 to 360,
+or that use a projected coordinate system, are handled automatically. A global
+grid has many cells at fine resolutions (see the table in
+`vignette("globalhex")`), so `raster_to_cell()` stops with an error if a result
+would exceed `max_cells`. Raise it deliberately when you need more.
+
+## From polygons to cells
+
+`cell_cover()` returns the cells whose **centers** fall inside a polygon:
+
+```{r}
+counties <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+county <- counties[counties$NAME == "Wake", ]
+
+wake_cells <- cell_cover(county, resolution = 8)
+length(wake_cells)
+```
+
+```{r}
+plot(sf::st_geometry(county), border = "black", lwd = 2)
+plot(sf::st_geometry(sf::st_as_sf(wake_cells)), add = TRUE, border = "steelblue")
+```
+
+Because selection is by cell center, cells along the edge may stick out of the
+polygon or leave small gaps. Use a finer resolution to follow the edge more
+closely.
+
+Holes in polygons, such as a lake inside a park, are excluded by default; set
+`include_holes = FALSE` to ignore them. Large polygons at fine resolutions can
+produce a great many cells, so `cell_cover()` also has a `max_cells` limit.
+
+## Back to sf
+
+To combine cells with other vector data, convert them to sf polygons with
+`sf::st_as_sf()`. Each row is one cell:
+
+```{r}
+sf::st_as_sf(wake_cells[1:3])
+```

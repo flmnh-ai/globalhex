@@ -174,3 +174,19 @@ test_that("raster arguments fail clearly", {
     class = "globalhex_error_argument"
   )
 })
+
+test_that("raster_to_cell handles small rasters between chunk breaks", {
+  skip_if_not_installed("terra")
+  skip_if_not_installed("exactextractr")
+  skip_if_not_installed("sf")
+  grid <- modern_grid()
+  elevation <- terra::rast(system.file("ex/elev.tif", package = "terra"))
+  converted <- raster_to_cell(elevation, resolution = 7, grid = grid, progress = FALSE)
+  expect_gt(length(converted$cell), 0L)
+  expect_true(all(is.finite(converted$elevation)))
+})
+
+test_that(".bounded_breaks returns only the endpoints for narrow intervals", {
+  expect_equal(.bounded_breaks(5.7, 6.5), c(5.7, 6.5))
+  expect_equal(.bounded_breaks(-10, 70), c(-10, 0, 60, 70))
+})

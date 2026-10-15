@@ -21,6 +21,8 @@ indexes, never H3 indexes.
 - `R/conditions.R` – `.abort()` and argument validators
 - `tests/testthat/` – tests; `helper-engine.R` skips when DGGRID is missing
 - `bench/` – development-only benchmarks (excluded from builds)
+- `vignettes/` – getting started, plotting, rasters and polygons
+- `inst/examples/` – runnable example scripts
 - `src/dggrid/` – vendored, unmodified DGGRID 9.03b source (commit e9bb18a); do not edit
 - `src/Makevars`, `src/install.libs.R` – compile DGGRID without GDAL and install it to `bin/`
 - `work/` – local demo outputs; not part of the package
@@ -57,6 +59,40 @@ The first build compiles ~140 C++ files and takes a minute or two.
 - `man/` and `NAMESPACE` are roxygen-generated; edit the roxygen comments, not
   the generated files.
 - Add a `NEWS.md` bullet for user-visible changes.
+
+## Implementation notes
+
+- Vector inputs are deduplicated before calling DGGRID and restored to input
+  order afterwards. Hierarchy and traversal batch by resolution and depth.
+- Point, center, boundary, and sequence-number requests run in bounded
+  chunks. Centers use DGGRID's TEXT output; boundaries use GEOJSON.
+- Parent lookup is a local string operation on Z7/Z3 IDs (no DGGRID call).
+- Plotting picks a display level from cell centers, aggregates locally, and
+  asks DGGRID for boundaries only for the final display cells. `render =
+  "auto"` rasterizes at `raster_threshold` (20,000) cells when terra is
+  available.
+- `raster_to_cell()` pads DGGRID's nucleus-based cover by one neighbor ring,
+  then drops cells not intersecting the raster footprint. Full-longitude
+  rasters use whole-grid generation instead of a clipping polygon.
+
+## Open work
+
+- Replace subprocess-per-operation calls with a persistent process or a native
+  dgaplib bridge.
+- Add fixtures for polygon covers spanning the antimeridian and holes at polar
+  latitudes.
+- Consider a bounded neighbor/center cache if benchmarks show repeated lookups
+  dominate real workloads.
+- Consider precomputed aggregation pyramids if interactive workloads outgrow
+  the current LOD path.
+- Set up a pkgdown site.
+
+## Docs
+
+`README.md` is generated from `README.Rmd`: edit the .Rmd and run
+`devtools::build_readme()`. Longer explanations belong in `vignettes/`, not
+the README. Vignettes must run quickly and guard optional packages with
+`eval = requireNamespace(...)`.
 
 ## Licensing
 

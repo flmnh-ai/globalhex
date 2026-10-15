@@ -1,0 +1,177 @@
+---
+title: "Getting started with globalhex"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with globalhex}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+has_sf <- requireNamespace("sf", quietly = TRUE)
+```
+
+globalhex works with a *discrete global grid*: a set of cells that covers the
+whole Earth with no gaps or overlaps. This vignette introduces grids, cells, and
+the functions that move between them.
+
+```{r setup}
+library(globalhex)
+```
+
+## Grids
+
+A grid is defined by `hex_grid()`. The default, IGEO7, is an equal-area grid of
+hexagons in which each cell has seven children at the next finer resolution.
+
+```{r}
+grid <- hex_grid()
+grid
+```
+
+Every function that creates cells takes a `grid` argument that defaults to
+`hex_grid()`, so you rarely need to pass it explicitly. The alternative ISEA3H
+grid, in which each cell has three children, is available as
+`hex_grid("isea3h")`.
+
+### Resolutions
+
+Resolution 0 is the coarsest level. Each step finer divides every cell into
+seven, so cells shrink quickly:
+
+```{r}
+resolution <- 0:12
+n_cells <- 10 * 7^resolution + 2
+data.frame(
+  resolution,
+  n_cells = format(n_cells, big.mark = ",", scientific = FALSE),
+  area_km2 = signif(510.1e6 / n_cells, 3)
+)
+```
+
+Because the grid is equal-area, these areas hold everywhere on Earth, from the
+equator to the poles.
+
+The grid is built on an icosahedron, so 12 cells at every resolution are
+pentagons rather than hexagons. That is why cell operations use the `cell_`
+prefix rather than `hex_`: not every cell is a hexagon. Pentagons have five
+neighbors instead of six, and globalhex handles them like any other cell.
+
+## Cells
+
+`point_to_cell()` finds the cell containing a point. Coordinates are always
+longitude first, then latitude:
+
+```{r}
+gainesville <- point_to_cell(c(-82.32, 29.65), resolution = 7)
+gainesville
+cell_resolution(gainesville)
+```
+
+It also accepts a matrix or data frame. Columns named `lon`/`lat` (or `long`,
+`lng`, `longitude`, `x`, `latitude`, `y`) are matched by name; otherwise the
+first two columns are used. With sf installed, sf `POINT` objects work too.
+
+```{r}
+cities <- data.frame(
+  name = c("Gainesville", "Nairobi", "Reykjavik"),
+  lat = c(29.65, -1.29, 64.15),
+  lon = c(-82.32, 36.82, -21.94)
+)
+cities$cell <- point_to_cell(cities, resolution = 5)
+cities
+```
+
+Cells are a vector type, so they sit happily in data frame columns, and they
+remember which grid they belong to. Cells from different grids cannot be
+combined by accident.
+
+### Geometry
+
+`cell_center()` returns the center of each cell, and `cell_boundary()` its
+vertices:
+
+```{r}
+cell_center(cities$cell)
+```
+
+```{r, eval = has_sf}
+polygons <- sf::st_as_sf(cities$cell)
+polygons
+```
+
+## Neighborhoods
+
+`cell_neighbors()` returns the cells sharing an edge. `cell_disk()` returns all
+cells within `k` steps, and `cell_ring()` only those exactly `k` steps away:
+
+```{r}
+cell_neighbors(gainesville)
+cell_disk(gainesville, k = 2)
+```
+
+Functions that can return several cells per input always return a tibble with
+one row per result and a column recording which input it came from. That holds
+for one input or many, so you never have to handle a list.
+
+`cell_distance()` counts the steps between two cells:
+
+```{r}
+other <- point_to_cell(c(-82.0, 29.9), resolution = 7)
+cell_distance(gainesville, other)
+```
+
+## Changing scale
+
+Each cell has one parent at the next coarser resolution, and seven children at
+the next finer one:
+
+```{r}
+parent <- cell_parent(gainesville)
+parent
+cell_children(parent)
+cell_parent(gainesville, resolution = 3)
+```
+
+A cell's ID begins with its parent's ID, so a cell vector can mix resolutions:
+
+```{r}
+mixed <- c(parent, gainesville)
+cell_resolution(mixed)
+```
+
+To summarize values from fine cells into coarse ones, use `cell_aggregate()`,
+described in `vignette("plotting")`.
+
+## Saving and restoring cells
+
+A cell ID is a short string of digits. Store it as text, never as a number, or
+leading zeros will be lost. After reading it back, attach the grid again with
+`as_globalhex_cell()`:
+
+```{r}
+path <- tempfile(fileext = ".csv")
+write.csv(data.frame(cell = as.character(cities$cell)), path, row.names = FALSE)
+
+restored <- read.csv(path, colClasses = "character")
+restored$cell <- as_globalhex_cell(restored$cell, grid)
+restored
+```
+
+`cell_is_valid()` checks that IDs read from elsewhere are well formed:
+
+```{r}
+cell_is_valid(c("0200501", "0200509", "99"), grid)
+```
+
+## Under the hood
+
+globalhex calls a bundled copy of [DGGRID](https://github.com/sahrk/DGGRID).
+`globalhex_info()` reports which copy is in use and the versions of related
+packages. To use your own DGGRID build instead, set the `globalhex.dggrid`
+option or the `DGGRID_BIN` environment variable.
+
+For grids created with the older [dggridR](https://cran.r-project.org/package=dggridR)
+package, `legacy_grid()` provides a limited compatibility path. It is only
+used when you ask for it.
