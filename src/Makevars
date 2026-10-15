@@ -1,6 +1,9 @@
 # Build the vendored DGGRID command-line program (src/dggrid) without GDAL.
 # globalhex runs it as a subprocess; install.libs.R copies it to bin/.
 
+# DGGRID 9.03b does not compile as C++20 (R >= 4.6 defaults to it).
+CXX_STD = CXX17
+
 DGGRID_EXE = dggrid/dggrid$(EXEEXT)
 
 DG_LIB = dggrid/lib

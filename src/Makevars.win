@@ -1,2 +1,3 @@
 EXEEXT = .exe
+CXX_STD = CXX17
 include Makevars
