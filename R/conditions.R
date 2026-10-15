@@ -48,6 +48,20 @@
   x
 }
 
+#' Validate a required scalar flag
+#' @noRd
+.flag <- function(x, arg, call = rlang::caller_env()) {
+  if (!is.logical(x) || length(x) != 1L || is.na(x)) {
+    .abort(
+      "{.arg {arg}} must be {.code TRUE} or {.code FALSE}.",
+      "globalhex_error_argument",
+      arg = arg,
+      call = call
+    )
+  }
+  x
+}
+
 #' Reject missing cells before sending data to DGGRID
 #' @noRd
 .check_cells_complete <- function(cell, arg = "cell", call = rlang::caller_env()) {

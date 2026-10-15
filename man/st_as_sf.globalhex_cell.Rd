@@ -4,16 +4,50 @@
 \alias{st_as_sf.globalhex_cell}
 \title{Convert cells to sf polygons}
 \usage{
-\method{st_as_sf}{globalhex_cell}(x, ...)
+\method{st_as_sf}{globalhex_cell}(x, wrap = TRUE, ...)
 }
 \arguments{
 \item{x}{A \code{globalhex_cell} vector.}
 
+\item{wrap}{Whether to split antimeridian cells, close polar cells, and
+densify long edges for flat longitude/latitude use.}
+
 \item{...}{Passed to methods; currently unused.}
 }
 \value{
-An sf object in EPSG:4326 with one polygon per cell.
+An sf object in EPSG:4326 with one row and geometry per cell.
 }
 \description{
-Convert cells to sf polygons
+Cell boundaries are spherical polygons: DGGRID reports their vertices, and
+the edges between them are great-circle arcs. That is exactly what
+\code{\link[sf:geos_measures]{sf::st_area()}} and other spherical (s2) operations expect, but a flat
+longitude/latitude map draws straight lines between vertices, so cells that
+cross the antimeridian (180 degrees longitude) would stretch across the whole map and cells
+containing a pole would draw as twisted shapes.
+}
+\details{
+With \code{wrap = TRUE} (the default) the polygons are prepared for flat
+longitude/latitude use:
+\itemize{
+\item edges longer than one degree are densified along their great circles;
+\item cells crossing the antimeridian are split into a \code{MULTIPOLYGON} whose
+parts touch longitude -180 and 180;
+\item cells containing a pole are closed along the map edge at latitude 90 or -90,
+so they draw as a polar cap.
+}
+
+Longitudes stay in [-180, 180] and spherical areas are unchanged. When
+any cell is split, every geometry is returned as a \code{MULTIPOLYGON} so the
+column has a single type. For a Pacific-centred map, use
+\code{\link[sf:st_shift_longitude]{sf::st_shift_longitude()}} on the result to move longitudes to [0, 360].
+
+Use \code{wrap = FALSE} for the raw spherical polygons with one ring of
+DGGRID vertices per cell, for example before projecting to a polar CRS.
+}
+\examples{
+if (requireNamespace("sf", quietly = TRUE)) {
+  seam <- point_to_cell(c(180, 10), 6)
+  sf::st_geometry(sf::st_as_sf(seam))
+  sf::st_geometry(sf::st_as_sf(seam, wrap = FALSE))
+}
 }
