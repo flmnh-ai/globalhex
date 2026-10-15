@@ -284,14 +284,12 @@ raster_to_cell <- function(
 }
 
 #' Construct wrapped cell polygons for raster work
+#'
+#' Seam cells are split and polar cells closed so they are valid planar
+#' polygons in longitude/latitude.
 #' @noRd
 .cell_raster_polygons <- function(cell) {
-  polygons <- sf::st_as_sf(cell)
-  suppressWarnings(sf::st_wrap_dateline(
-    polygons,
-    options = c("WRAPDATELINE=YES", "DATELINEOFFSET=180"),
-    quiet = TRUE
-  ))
+  sf::st_as_sf(cell, wrap = TRUE)
 }
 
 #' Run exact extraction with type-aware defaults

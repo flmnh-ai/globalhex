@@ -1,5 +1,11 @@
 # globalhex 0.0.0.9000
 
+- `st_as_sf()` now returns polygons that draw correctly on flat
+  longitude/latitude maps: cells crossing the antimeridian are split into
+  `MULTIPOLYGON`s, cells containing a pole are closed along latitude ±90, and
+  long edges follow their great circles. Spherical areas are unchanged. Use
+  `wrap = FALSE` for the raw spherical polygons. Unprojected `plot()` displays
+  use the same geometry, so polar cells no longer smear across the map.
 - Bundled DGGRID 9.03b source, compiled without GDAL at install time, so no
   separate DGGRID installation is needed. The package is now AGPL-3.0-or-later.
 - `cell_cover()` clips with DGGRID's AIGEN format and applies polygon holes in

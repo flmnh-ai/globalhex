@@ -645,9 +645,17 @@ plot.globalhex_data <- function(
 }
 
 #' Construct final polygons, then project for display
+#'
+#' Unprojected displays use flat longitude/latitude geometry: seam cells are
+#' split, polar cells are closed along the map edge, and an
+#' antimeridian-crossing extent uses a Pacific-centred \[0, 360\] window.
 #' @noRd
 .display_geometry <- function(boundaries, extent, crs) {
   wrap <- extent[["xmin"]] > extent[["xmax"]]
+  target <- sf::st_crs(crs)
+  if (is.na(target) || identical(target$epsg, 4326L)) {
+    return(.flat_cell_geometry(boundaries, center = if (wrap) 180 else 0))
+  }
   polygons <- lapply(boundaries, function(ring) {
     ring <- unname(ring)
     if (wrap) ring[ring[, 1L] < 0, 1L] <- ring[ring[, 1L] < 0, 1L] + 360
@@ -661,11 +669,7 @@ plot.globalhex_data <- function(
       quiet = TRUE
     ))
   }
-  target <- sf::st_crs(crs)
-  if (!is.na(target) && !identical(target$epsg, 4326L)) {
-    geometry <- sf::st_transform(geometry, target)
-  }
-  geometry
+  sf::st_transform(geometry, target)
 }
 
 #' Convert a geographic viewport to final plot limits
