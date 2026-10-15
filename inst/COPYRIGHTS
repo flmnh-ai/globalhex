@@ -1,0 +1,21 @@
+globalhex bundles source code from DGGRID in src/dggrid/.
+
+DGGRID
+  Source:    https://github.com/sahrk/DGGRID
+  Version:   9.03b (commit e9bb18a502cedf8beb5d743dc9c9fd977c53c0ef)
+  Copyright: Kevin Sahr
+  License:   GNU Affero General Public License v3.0 or later
+             (src/dggrid/LICENSE)
+
+DGGRID itself includes:
+
+shapelib (src/dggrid/lib/shapelib)
+  Copyright: (c) 1999 Frank Warmerdam; (c) 2012-2016 Even Rouault
+  License:   MIT (src/dggrid/lib/shapelib/LICENSE)
+
+proj4lib (src/dggrid/lib/proj4lib)
+  Copyright: (c) 2013 Gerald Evenden, Kevin Sahr
+  License:   MIT (src/dggrid/lib/proj4lib/LICENSE)
+
+The bundled DGGRID is compiled without GDAL. Build files were replaced by
+src/Makevars; the DGGRID source files are otherwise unmodified.

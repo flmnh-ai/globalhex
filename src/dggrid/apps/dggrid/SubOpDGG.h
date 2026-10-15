@@ -1,0 +1,124 @@
+/*******************************************************************************
+    Copyright (C) 2023 Kevin Sahr
+
+    This file is part of DGGRID.
+
+    DGGRID is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    DGGRID is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+//
+// SubOpDGG.h: this file defines the parameters for creating a DGG in DGGRID
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef SUBOPDGG_H
+#define SUBOPDGG_H
+
+#include <dglib/DgApSeq.h>
+#include <dglib/DgGridTopo.h>
+#include <dglib/DgEllipsoidRF.h>
+#include <dglib/DgGeoSphRF.h>
+#include <dglib/DgIDGGSBase.h>
+#include <dglib/DgAddressType.h>
+#include <dglib/DgOutLocFile.h>
+
+using namespace dgg::addtype;
+
+#include "SubOpBasic.h"
+
+class DgRandom;
+struct OpBasic;
+
+////////////////////////////////////////////////////////////////////////////////
+struct SubOpDGG : public SubOpBasic {
+
+   static const int MAX_DGG_RES;
+
+   SubOpDGG (OpBasic& op, bool activate = true);
+
+   // DGG access methods
+   DgRFNetwork&         net0   (void) { return _net0; }
+   const DgGeoSphRF&    geoRF  (void) { return *_pGeoRF; }
+   const DgIDGGSBase&   dggs   (void) { return *_pDGGS; }
+   const DgIDGGBase&    dgg    (void) { return *_pDGG; }
+   const DgGeoSphDegRF& deg    (void) { return *_pDeg; }
+   const DgIDGGBase&    chdDgg (void) { return *_pChdDgg; }
+   const DgGeoSphDegRF& chdDeg (void) { return *_pChdDeg; }
+   // note the indexing children use the same DGG as the spatial children
+   const DgIDGGBase*    prtDgg (void) { return _pPrtDgg; }
+   const DgGeoSphDegRF* prtDeg (void) { return _pPrtDeg; }
+
+   // set rf and chdRF based on type
+   // return if seq num
+   bool addressTypeToRF (dgg::addtype::DgAddressType type, dgg::addtype::DgHierNdxSysType hierNdxSysType,
+      dgg::addtype:: DgHierNdxFormType hierNdxForm, const DgRFBase** rf, const DgHierNdxSystemRFSBase** hierNdxSys = nullptr,
+      const DgRFBase** chdRF = nullptr, const DgRFBase** prtRF = nullptr, int forceRes = -1);
+
+   // DgApSubOperation virtual methods that use the pList
+   virtual int initializeOp (void);
+   virtual int setupOp (void);
+   virtual int cleanupOp (void);
+
+   // create the DGG
+   virtual int executeOp (void);
+
+   // internal helper methods
+   void determineRes (void);
+   void orientGrid   (void);
+
+   // the created DGG
+   DgRFNetwork          _net0;
+   const DgGeoSphRF*    _pGeoRF  = nullptr;
+   const DgIDGGSBase*   _pDGGS   = nullptr;
+   const DgIDGGBase*    _pDGG    = nullptr;
+   const DgGeoSphDegRF* _pDeg    = nullptr;
+   const DgIDGGBase*    _pChdDgg = nullptr;   // child res dgg
+   const DgGeoSphDegRF* _pChdDeg = nullptr;
+   const DgIDGGBase*    _pPrtDgg = nullptr;   // indexing parent res dgg (null at res 0)
+   const DgGeoSphDegRF* _pPrtDeg = nullptr;   // null when _pPrtDgg is null
+
+   // the parameters
+   std::string dggsType;              // preset DGGS type
+   dgg::topo::DgGridTopology gridTopo;      // Diamond/Hexagon/Triangle
+   dgg::topo::DgGridMetric   gridMetric;    // D4/D8
+   int aperture;      // aperture
+   std::string projType;   // projection type
+   int res;           // resolution (may be adjusted)
+   int actualRes;     // original, actual resolution
+   bool placeRandom;  // random grid placement?
+   bool orientCenter; // grid placement based on quad center point?
+   DgRandom* orientRand; // RNG for generating random orientation
+   int numGrids;      // number of grids to generate
+   int curGrid;       // grid counter
+   bool lastGrid;     // last grid?
+   long long int sampleCount;         // last sample point sequence number
+   unsigned long long int nSamplePts;
+   DgGeoCoord vert0;  // placement vert
+   long double azimuthDegs; // orientation azimuth
+   long double earthRadius; // earth radius in km
+   std::string datum;            // datum used to determine the earthRadius
+   std::string apertureType; // "PURE", "MIXED43", "SUPERFUND", or "SEQUENCE"
+   bool   isMixed43;       // are we using mixed43 aperture?
+   int numAp4;          // # of leading ap 4 resolutions in a mixed grid
+   bool   isSuperfund;
+   bool   isApSeq;      // are we using an aperture sequence?
+   DgApSeq apSeq;
+   int   sfRes; // superfund digit resolution
+   DgHierNdxSysType hierNdxSysType;
+   int z3invalidDigit;  // padding digit for all Z3 systems`k
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+#endif

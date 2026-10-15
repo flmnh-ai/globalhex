@@ -1,0 +1,5 @@
+*.o
+*.so
+*.dll
+dggrid/dggrid
+dggrid/dggrid.exe

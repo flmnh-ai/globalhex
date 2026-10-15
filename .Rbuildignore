@@ -1,0 +1,9 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.git$
+^\.gitignore$
+^bench$
+^work$
+^AGENTS\.md$
+^src/.*\.o$
+^src/dggrid/dggrid(\.exe)?$

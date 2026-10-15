@@ -1,0 +1,41 @@
+Package: globalhex
+Title: H3-Style Access to Hierarchical DGGRID Grids
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Nicolas", "Gauthier", email = "nicolas.gauthier@ufl.edu", role = c("aut", "cre")),
+    person("Kevin", "Sahr", role = c("ctb", "cph"), comment = "Author of the bundled DGGRID source"),
+    person("Gerald", "Evenden", role = "cph", comment = "Bundled proj4lib code"),
+    person("Frank", "Warmerdam", role = "cph", comment = "Bundled shapelib code"),
+    person("Even", "Rouault", role = "cph", comment = "Bundled shapelib code")
+    )
+Description: An experimental package exposing a small, H3-shaped R API over
+    modern DGGRID hierarchical indexes, using a bundled copy of DGGRID. The
+    default grid is the equal-area IGEO7 grid with Z7 digit-string indexes.
+    ISEA3H with Z3 indexes and a partial compatibility path through dggridR
+    are also supported. Large cell datasets can be aggregated through the
+    hierarchy and plotted with viewport-aware level of detail before polygon
+    geometry is constructed, with automatic raster rendering for large display
+    layers. Optional raster helpers provide exact area-weighted extraction and
+    fast cell-center sampling from modern terra rasters.
+License: AGPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports:
+    cli,
+    jsonlite,
+    rlang,
+    tibble,
+    vctrs
+Suggests:
+    bench,
+    dggridR,
+    exactextractr,
+    sf,
+    terra,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+SystemRequirements: GNU make, C++17. DGGRID 9.03b source is bundled and
+    compiled at install time; see inst/COPYRIGHTS.
+URL: https://github.com/flmnh-ai/globalhex
+BugReports: https://github.com/flmnh-ai/globalhex/issues

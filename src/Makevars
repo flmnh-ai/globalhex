@@ -1,0 +1,26 @@
+# Build the vendored DGGRID command-line program (src/dggrid) without GDAL.
+# globalhex runs it as a subprocess; install.libs.R copies it to bin/.
+
+DGGRID_EXE = dggrid/dggrid$(EXEEXT)
+
+DG_LIB = dggrid/lib
+PKG_CPPFLAGS = -I$(DG_LIB)/dglib/include -I$(DG_LIB)/dgaplib/include \
+  -I$(DG_LIB)/shapelib/include -I$(DG_LIB)/shapelib/include/shapelib \
+  -I$(DG_LIB)/proj4lib/include -Idggrid/apps/dggrid
+
+DG_CXX_SRC = $(wildcard $(DG_LIB)/dglib/lib/*.cpp) \
+  $(wildcard $(DG_LIB)/dgaplib/lib/*.cpp) \
+  $(wildcard $(DG_LIB)/proj4lib/lib/*.cpp) \
+  $(wildcard dggrid/apps/dggrid/*.cpp)
+DG_C_SRC = $(wildcard $(DG_LIB)/shapelib/lib/*.c)
+DG_OBJECTS = $(DG_CXX_SRC:.cpp=.o) $(DG_C_SRC:.c=.o)
+
+.PHONY: all clean
+
+all: $(DGGRID_EXE)
+
+$(DGGRID_EXE): $(DG_OBJECTS)
+	$(CXX) $(ALL_CXXFLAGS) $(LDFLAGS) -o $@ $(DG_OBJECTS)
+
+clean:
+	rm -f $(DG_OBJECTS) $(DGGRID_EXE)
