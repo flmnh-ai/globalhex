@@ -71,6 +71,9 @@ The first build compiles ~140 C++ files and takes a minute or two.
   asks DGGRID for boundaries only for the final display cells. `render =
   "auto"` rasterizes at `raster_threshold` (20,000) cells when terra is
   available.
+- `st_as_sf()` and unprojected plots split antimeridian-crossing cells and
+  close polar cells along the map edge; `cell_boundary()` returns the raw,
+  unsplit DGGRID rings.
 - `raster_to_cell()` pads DGGRID's nucleus-based cover by one neighbor ring,
   then drops cells not intersecting the raster footprint. Full-longitude
   rasters use whole-grid generation instead of a clipping polygon.
@@ -79,18 +82,20 @@ The first build compiles ~140 C++ files and takes a minute or two.
 
 - Replace subprocess-per-operation calls with a persistent process or a native
   dgaplib bridge.
-- Add fixtures for polygon covers spanning the antimeridian and holes at polar
-  latitudes.
+- Add tests for `cell_cover()` with polygons spanning the antimeridian (checked
+  by hand: ±180 and 0–360 coordinates give the same cells) and with holes at
+  polar latitudes.
 - Consider a bounded neighbor/center cache if benchmarks show repeated lookups
   dominate real workloads.
 - Consider precomputed aggregation pyramids if interactive workloads outgrow
   the current LOD path.
-- Set up a pkgdown site.
 
 ## Docs
 
 `README.md` is generated from `README.Rmd`: edit the .Rmd and run
-`devtools::build_readme()`. Longer explanations belong in `vignettes/`, not
+`devtools::build_readme()`. The pkgdown site
+(<https://flmnh-ai.github.io/globalhex/>, config in `_pkgdown.yml`) rebuilds
+on every push to `main`. Longer explanations belong in `vignettes/`, not
 the README. Vignettes must run quickly and guard optional packages with
 `eval = requireNamespace(...)`.
 
